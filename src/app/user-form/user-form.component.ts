@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UsuarioService } from '../services/usuario.service';
 import { ButtonModule } from 'primeng/button';
-import { ToastModule } from 'primeng/toast';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { InputTextModule } from 'primeng/inputtext';
@@ -16,7 +15,6 @@ import { CardModule } from 'primeng/card';
     ReactiveFormsModule,
     FormsModule,
     ButtonModule,
-    ToastModule,
     RouterModule,
     InputTextModule,
     InputNumberModule,

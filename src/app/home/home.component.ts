@@ -49,7 +49,7 @@ export class HomeComponent {
           summary: 'Error',
           detail: 'No se puede eliminar',
         });
-      }
-    })
+      },
+    });
   }
 }

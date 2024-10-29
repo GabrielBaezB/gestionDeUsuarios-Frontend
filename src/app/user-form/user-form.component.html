@@ -1,1 +1,27 @@
-<p>user-form works!</p>
+<p-toast />
+<div class="flex justify-content-center align-items-center min-h-screen w-ful">
+    <p-card header="Formulario de usuario" class="w-10">
+        <form [formGroup]="formUsuario" (ngSubmit)="edit ? updateUsuarios() : createUsuario()"
+            class="flex flex-column gap-2">
+            <div class="field flex flex-column gap-1">
+                <label for="name">Nombre</label>
+                <input type="text" pInputText formControlName="name" />
+            </div>
+            <div class="field flex flex-column gap-1">
+                <label for="email">Correo</label>
+                <input type="text" pInputText formControlName="email" />
+            </div>
+            <div class="field flex flex-column gap-1">
+                <label for="phone">Telefono</label>
+                <input type="text" pInputText formControlName="phone" />
+            </div>
+            <div class="field flex flex-column gap-1">
+                <label for="address">Direccion</label>
+                <input type="text" pInputText formControlName="address" />
+            </div>
+            <div class="flex gap-2">
+                <p-button label="Guardar" [loading]="isSaveInProgress" type="submit" />
+            </div>
+        </form>
+    </p-card>
+</div>

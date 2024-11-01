@@ -1,27 +1,84 @@
-import { Component } from '@angular/core';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
+import { Component, OnInit } from '@angular/core';
+import { MessageService, SelectItem  } from 'primeng/api';
 import { Usuario } from '../models/usuario';
 import { UsuarioService } from '../services/usuario.service';
+import { TableModule } from 'primeng/table';
+import { CommonModule } from '@angular/common';
+import { TagModule } from 'primeng/tag';
+import { DropdownModule } from 'primeng/dropdown';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
 import { RouterModule } from '@angular/router';
-import { MessageService } from 'primeng/api';
+import { FormsModule } from '@angular/forms'; // Asegúrate de esto
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [ButtonModule, CardModule, RouterModule],
+  imports: [ButtonModule, TableModule, RouterModule, CommonModule, TagModule, DropdownModule, InputTextModule, FormsModule],
   templateUrl: './home.component.html',
-  styleUrl: './home.component.css'
+  styleUrls: ['./home.component.css'] // corrected property name from 'styleUrl' to 'styleUrls'
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
 
-  usuarios: Usuario[] = []
-  isDeleteInProgress:boolean = false
+  usuarios: Usuario[] = [];
+  clonedUsuarios: { [s: string]: Usuario } = {};
+  isDeleteInProgress: boolean = false;
 
-  constructor(private usuarioService: UsuarioService, private messageService:MessageService) { }
+  constructor(private usuarioService: UsuarioService, private messageService: MessageService) {}
 
   ngOnInit(): void {
-    this.getAllUsuarios()
+    this.getAllUsuarios();
+  }
+
+  onRowEditInit(usuario: Usuario) {
+    // Clone the row data when editing starts
+    this.clonedUsuarios[usuario.id as number] = { ...usuario };
+  }
+
+  onRowEditSave(usuario: Usuario) {
+    if (usuario.id > 0) {
+        // Actualiza el usuario existente
+        this.usuarioService.updateUsuarios(usuario).subscribe({
+            next: (response) => {
+                // Manejo de la respuesta exitosa
+                delete this.clonedUsuarios[usuario.id as number];
+                this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Usuario actualizado' });
+                this.getAllUsuarios(); // Actualiza la lista después de la actualización
+            },
+            error: (error) => {
+                // Manejo de error en la actualización
+                console.error('Error al actualizar el usuario', error);
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al actualizar el usuario' });
+            }
+        });
+    } else {
+        // Crea un nuevo usuario
+        this.usuarioService.createUsuarios(usuario).subscribe({
+            next: (newUsuario) => {
+                // Manejo de la respuesta exitosa al crear
+                this.usuarios.push(newUsuario); // Agrega el nuevo usuario a la lista
+                this.messageService.add({ severity: 'success', summary: 'Éxito', detail: 'Usuario creado' });
+                this.getAllUsuarios(); // Actualiza la lista después de la creación
+            },
+            error: (error) => {
+                // Manejo de error en la creación
+                console.error('Error al crear el usuario', error);
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Error al crear el usuario' });
+            }
+        });
+    }
+}
+
+
+  onRowEditCancel(usuario: Usuario, index: number) {
+    // Restore the original row data from the clone
+    this.usuarios[index] = this.clonedUsuarios[usuario.id as number];
+    delete this.clonedUsuarios[usuario.id as number];
+  }
+
+  validateUsuario(usuario: Usuario): boolean {
+    // Simple validation logic
+    return !!usuario.name && !!usuario.email && !!usuario.phone && !!usuario.address;
   }
 
   getAllUsuarios() {
@@ -30,26 +87,26 @@ export class HomeComponent {
     });
   }
 
-  deleteUsuarios(id:number) {
-    this.isDeleteInProgress=true
+  deleteUsuarios(id: number) {
+    this.isDeleteInProgress = true;
     this.usuarioService.deleteUsuarios(id).subscribe({
       next: () => {
         this.messageService.add({
           severity: 'success',
-          summary: 'Guardado',
-          detail: 'Usuario eliminado',
+          summary: 'Deleted',
+          detail: 'User deleted successfully.'
         });
-        this.isDeleteInProgress=false
+        this.isDeleteInProgress = false;
         this.getAllUsuarios();
       },
       error: () => {
-        this.isDeleteInProgress=false
+        this.isDeleteInProgress = false;
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'No se puede eliminar',
+          detail: 'Unable to delete user.'
         });
-      },
+      }
     });
   }
 }
